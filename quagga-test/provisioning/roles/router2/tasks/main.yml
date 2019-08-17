@@ -1,0 +1,66 @@
+---
+# tasks file for router2
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Disabling rp_filter eth0
+  sysctl:
+    name: net.ipv4.conf.eth0.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Disabling rp_filter eth1
+  sysctl:
+    name: net.ipv4.conf.eth1.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Disabling rp_filter eth2
+  sysctl:
+    name: net.ipv4.conf.eth2.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+
+- name: Copy Quagga configs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/quagga
+  loop:
+    - daemons
+    - bgpd.conf
+    - debian.conf
+    - ospfd.conf
+    - zebra.conf
+
+- name: Creating log dir '/var/log/quagga/'
+  file:
+    path: '/var/log/quagga/'
+    state: directory
+
+- name: starting and add quagga to startup
+  systemd:
+    name: 'zebra'
+    state: started
+    enabled: yes
+
+- name: starting and add ospfd to startup
+  systemd:
+    name: 'ospfd'
+    state: started
+    enabled: yes
+
+- name: starting and add bgpd to startup
+  systemd:
+    name: 'bgpd'
+    state: started
+    enabled: yes

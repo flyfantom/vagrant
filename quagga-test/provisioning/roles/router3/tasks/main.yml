@@ -1,0 +1,34 @@
+---
+# tasks file for router3
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Copy Quagga configs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/quagga
+  loop:
+    - daemons
+    - debian.conf
+    - ospfd.conf
+    - zebra.conf
+
+- name: Creating log dir '/var/log/quagga/'
+  file:
+    path: '/var/log/quagga/'
+    state: directory
+
+- name: starting and add quagga to startup
+  systemd:
+    name: 'zebra'
+    state: started
+    enabled: yes
+
+- name: starting and add ospfd to startup
+  systemd:
+    name: 'ospfd'
+    state: started
+    enabled: yes

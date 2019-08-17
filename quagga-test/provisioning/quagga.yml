@@ -1,0 +1,35 @@
+---
+- hosts: r1, r2, r3
+  become: true
+  roles:
+    - quagga
+
+- hosts: r4
+  become: true
+  roles:
+    - bird
+
+- hosts: r1
+  become: true
+  roles:
+    - router1
+
+- hosts: r2
+  become: true
+  roles:
+    - router2
+
+- hosts: r3
+  become: true
+  roles:
+    - router3
+
+- hosts: r4
+  become: true
+  roles:
+    - router4
+
+- hosts: all
+  become: true
+  roles:
+    - utility
