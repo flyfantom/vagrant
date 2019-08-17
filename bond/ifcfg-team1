@@ -1,0 +1,10 @@
+DEVICE=team0
+IPADDR=10.20.0.1
+NETMASK=255.255.255.0
+ONBOOT=yes
+NM_CONTROLLED=no
+USERCTL=no
+BOOTPROTO=none
+DEVICETYPE="Team"
+TEAM_CONFIG='{ "runner" : {  "name" : "activebackup",  "hwaddr_policy" : "by_active" }, "link_watch" : {  "name" : "ethtool" } }'
+
