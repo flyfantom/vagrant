@@ -6,4 +6,4 @@
 10.20.0.1 - testBond2
 10.20.0.2 - testBond3
 
-![network](https://github.com/flyfantom/vagrant/bond/blob/master/Bonding_test_stand.png)
+![network](https://github.com/flyfantom/vagrant/blob/master/bond/Bonding_test_stand.png)
