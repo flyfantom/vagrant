@@ -1,0 +1,25 @@
+---
+- hosts: all
+  become: true
+  roles:
+    - k8s
+
+- hosts: k8master
+  become: true
+  roles:
+    - k8master
+
+- hosts: k8minion1
+  become: true
+  roles:
+    - k8minion1
+
+- hosts: k8minion2
+  become: true
+  roles:
+    - k8minion2
+
+- hosts: all
+  become: true
+  roles:
+    - utility

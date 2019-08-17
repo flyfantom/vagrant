@@ -1,0 +1,91 @@
+---
+# tasks file for k8s
+
+- name: Installing epel-release
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Enabling ip forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+### Установка утилит необходимых для работы Docker
+- name: 'Installing base Docker utilities'
+  yum:
+    name: ['yum-utils', 'device-mapper-persistent-data', 'lvm2']
+    state: latest
+
+### 
+- name: Add kubernetes repository
+  yum_repository:
+    name: kubernetes
+    description: Kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    file: kubernetes
+
+### Установка репозитория docker
+- name: Add docker-ce-stable repository
+  yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    file: docker-ce
+
+- name: Add docker-ce-stable-debuginfo repository
+  yum_repository:
+    name: docker-ce-stable-debuginfo
+    description: Docker CE Stable - Debuginfo $basearch
+    baseurl: https://download.docker.com/linux/centos/7/debug-$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    file: docker-ce
+
+- name: Add docker-ce-stable-source repository
+  yum_repository:
+    name: docker-ce-stable-source
+    description: Docker CE Stable - Sources
+    baseurl: https://download.docker.com/linux/centos/7/source/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    file: docker-ce
+
+### Установка docker
+- name: Install docker-ce
+  package:
+     name: docker-ce
+     state: latest
+
+### Установка kubeadm
+- name: Install kubeadm
+  package:
+     name: kubeadm
+     state: latest
+
+- name: 'Installing base kubernets utilities'
+  yum:
+    name: ['ebtables', 'ethtool', 'kubeadm', 'etcd', 'kubectl']
+    state: latest
+
+### Запуск и включение сервиса docker в автозагрузку
+- name: Check docker.service
+  systemd:
+    state: started
+    name: docker
+    enabled: yes
+
+### Запуск и включение сервиса kubelet в автозагрузку
+- name: Check kubelet.service
+  systemd:
+    state: started
+    name: kubelet
+    enabled: yes
+

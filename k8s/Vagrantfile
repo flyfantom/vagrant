@@ -1,0 +1,67 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "centos/7"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/k8s.yml"
+    ansible.become = "true"
+  end
+
+
+  config.vm.define "k8master" do |k8master|
+    k8master.vm.hostname = "k8master"
+    k8master.vm.network "private_network", ip: "10.0.0.10", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "k8s"
+    k8master.vm.provider :virtualbox do |vb|
+      vb.name = "k8master"
+      vb.memory = 512
+      vb.cpus = 2
+    end
+    k8master.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 10.0.0.10 k8master >> /etc/hosts
+    echo 10.0.0.20 k8minion1 >> /etc/hosts
+    echo 10.0.0.30 k8minion2 >> /etc/hosts
+    modprobe br_netfilter
+    echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+    swapoff -a
+    SHELL
+  end
+
+  config.vm.define "k8minion1" do |k8minion1|
+    k8minion1.vm.hostname = "k8minion1"
+    k8minion1.vm.network "private_network", ip: "10.0.0.20", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "k8s"
+    k8minion1.vm.provider :virtualbox do |vb|
+      vb.name = "k8minion1"
+      vb.memory = 512
+      vb.cpus = 2
+    end
+    k8minion1.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 10.0.0.10 k8master >> /etc/hosts
+    echo 10.0.0.20 k8minion1 >> /etc/hosts
+    echo 10.0.0.30 k8minion2 >> /etc/hosts
+    modprobe br_netfilter
+    echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+    swapoff -a
+    SHELL
+  end
+
+  config.vm.define "k8minion2" do |k8minion2|
+    k8minion2.vm.hostname = "k8minion2"
+    k8minion2.vm.network "private_network", ip: "10.0.0.30", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "k8s"
+    k8minion2.vm.provider :virtualbox do |vb|
+      vb.name = "k8minion2"
+      vb.memory = 512
+      vb.cpus = 2
+    end
+    k8minion2.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 10.0.0.10 k8master >> /etc/hosts
+    echo 10.0.0.20 k8minion1 >> /etc/hosts
+    echo 10.0.0.30 k8minion2 >> /etc/hosts
+    modprobe br_netfilter
+    echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+    swapoff -a
+    SHELL
+  end
+
+end

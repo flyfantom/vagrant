@@ -1,0 +1,7 @@
+---
+# tasks file for k8minion2
+
+- name: Put SELinux in disabled mode
+  selinux:
+    state: disabled
+
