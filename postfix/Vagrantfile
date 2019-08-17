@@ -1,0 +1,63 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+Vagrant.configure("2") do |config|
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/postfix.yml"
+    ansible.become = "true"
+  end
+
+  config.vm.define "postfix" do |config|
+  config.vm.hostname = "postfix"
+  config.vm.box = "centos/7"
+  config.vm.box_check_update = false
+  config.vm.network "private_network", ip: "172.16.10.10"
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "mail.test.ru"
+    vb.memory = 512
+    vb.cpus = 1
+    end
+    postfix.vm.provision "shell", run: "always", inline: <<-SHELL
+    ### Добавляем пользователя и группу для обработки почтовых каталогов
+    groupadd -g 5000 vmail
+    useradd -r -u 1150 -g mail -d /var/vmail -s /sbin/nologin -c "Virtual maildir handler" vmail
+    ### Создаем и меняем права на каталог для почты
+    mkdir /var/vmail
+    chmod 770 /var/vmail/
+    chown vmail:mail /var/vmail/
+    ### Добавляем репозиторий MariaDB
+    cat <<EOF > /etc/yum.repos.d/mysql.repo
+    [mariadb]
+    name = MariaDB
+    baseurl = http://yum.mariadb.org/10.3/centos7-amd64
+    gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    gpgcheck=1
+    EOF
+    yum install -y MariaDB-server MariaDB-client
+    ### Запускаем сервис mariadb
+    systemctl enable mariadb
+    systemctl start mariadb
+    ### Создаем базу данных для работы postfix
+    mysql -uroot -e "create database postfix;"
+    mysql -uroot -e "grant all privileges on postfix.* to postfixuser@'localhost' identified by 'postfix';"
+    mysql -uroot -e "flush privileges;"
+
+    ### Формируем базу данных postfix
+    touch /etc/postfix/recipient_access
+    postmap /etc/postfix/recipient_access
+    service postfix restart
+
+    ### Меняем права на каталоги dovecot
+    chown -R vmail:dovecot /etc/dovecot/
+    chmod -R o-rwx /etc/dovecot/
+    touch /var/log/dovecot.log
+    chmod 664 /var/log/dovecot.log
+    chown dovecot:mail /var/log/dovecot.log
+    service dovecot restart
+    SHELL
+
+  end
+end

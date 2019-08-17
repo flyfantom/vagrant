@@ -1,0 +1,74 @@
+---
+# tasks file for postfix
+
+- name: Installing epel-release
+  yum:
+    name: epel-release
+    state: latest
+
+### Копируем конфиги postfix
+- name: Copy postfix configs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/postfix
+  loop:
+    - main.cf
+    - master.cf
+
+- name: Creating postfix sql dir '/etc/postfix/sql'
+  file:
+    path: '/etc/postfix/sql'
+    state: directory
+
+- name: Copy postfix sql configs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/postfix/sql
+  loop:
+    - vdomains.cf
+    - valias.cf
+    - vmailbox.cf
+
+### Запуск и включение сервиса postfix в автозагрузку
+- name: Check postfix.service
+  systemd:
+    state: started
+    name: postfix
+    enabled: yes
+
+### Устанавливаем dovecot
+- name: 'Installing dovecot'
+  yum:
+    name: ['dovecot', 'dovecot-mysql', 'dovecot-pigeonhole']  
+    state: latest
+
+- name: Copy dovecot configs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/dovecot/conf.d
+  loop:
+    - 10-auth.conf
+    - 10-logging.conf
+    - 10-mail.conf
+    - 10-master.conf
+    - 10-ssl.conf
+    - 15-lda.conf
+    - 15-mailboxes.conf
+    - 20-imap.conf
+    - 90-quota.conf
+
+- name: Copy dovecot configs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/dovecot
+  loop:
+    - dovecot.conf
+    - dovecot-dict-sql.conf.ext
+    - dovecot-sql.conf.ext
+
+### Запуск и включение сервиса dovecot в автозагрузку
+- name: Check dovecot.service
+  systemd:
+    state: started
+    name: dovecot
+    enabled: yes

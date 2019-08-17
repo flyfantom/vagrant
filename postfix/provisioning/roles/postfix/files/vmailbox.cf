@@ -1,0 +1,9 @@
+user = postfixuser
+password = postfix
+hosts = 127.0.0.1
+dbname = postfix
+table = mailbox
+select_field = CONCAT(domain,'/',maildir)
+where_field = username
+additional_conditions = and active = '1'
+query = select username from mailbox where username='%s' AND active = '1'
