@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+
+Vagrant.configure("2") do |config|
+
+  ##### DEFINE VM for oob-mgmt-server #####
+  config.vm.define "centos-test" do |config|
+  config.vm.hostname = "centos-test"
+  config.vm.box = "centos/7"
+  config.vm.box_check_update = false
+  config.vm.network "private_network", ip: "172.16.10.10"
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = 1024
+#    vb.storage_pool_name = "VM"
+    end
+  end
+end
