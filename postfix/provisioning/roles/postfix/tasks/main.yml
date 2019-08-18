@@ -66,11 +66,38 @@
     - dovecot-dict-sql.conf.ext
     - dovecot-sql.conf.ext
 
+- file:
+    path: /var/log/dovecot
+    state: directory
+    owner: dovecot
+    group: mail
+    mode: 0775
+
 ### Запуск и включение сервиса dovecot в автозагрузку
-- name: Check dovecot.service
+#- name: Check dovecot.service
+#  systemd:
+#    state: started
+#    name: dovecot
+#    enabled: yes
+
+- name: Copy mariadb.repo
+  copy:
+    src: "{{ item }}"
+    dest: /etc/yum.repos.d
+  loop:
+    - mariadb.repo
+
+### Устанавливаем MariaDB
+- name: 'Installing MariaDB'
+  yum:
+    name: ['MariaDB-server', 'MariaDB-client']
+    state: latest
+
+### Запуск и включение сервиса mariadb в автозагрузку
+- name: Check mariadb.service
   systemd:
     state: started
-    name: dovecot
+    name: mariadb
     enabled: yes
 
 - name: Copy sql dump
