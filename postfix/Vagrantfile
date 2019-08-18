@@ -42,8 +42,12 @@ Vagrant.configure("2") do |config|
     systemctl start mariadb
     ### Создаем базу данных для работы postfix
     mysql -uroot -e "create database postfix;"
+    ### Создаем пользователя postfixuser и задаем ему права
+    mysql -uroot -e "create user 'postfixuser'@'localhost' identified by 'postfix';"
     mysql -uroot -e "grant all privileges on postfix.* to postfixuser@'localhost' identified by 'postfix';"
     mysql -uroot -e "flush privileges;"
+    ### Заливаем в базу дамп
+    mysql -uroot posftix < /root/postfix.sql
 
     ### Формируем базу данных postfix
     touch /etc/postfix/recipient_access
