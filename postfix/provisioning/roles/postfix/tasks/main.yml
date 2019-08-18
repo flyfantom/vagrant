@@ -72,3 +72,10 @@
     state: started
     name: dovecot
     enabled: yes
+
+- name: Copy sql dump
+  copy:
+    src: "{{ item }}"
+    dest: /root
+  loop:
+    - postfix.sql
