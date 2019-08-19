@@ -46,7 +46,8 @@ Vagrant.configure("2") do |config|
     ### Меняем права на каталоги dovecot
     chown -R vmail:dovecot /etc/dovecot/
     chmod -R o-rwx /etc/dovecot/
-    touch /var/log/dovecot/dovecot.log
+    chown -R dovecot:mail /var/log/dovecot
+    chmod 777 /var/log/dovecot
     service dovecot restart
     SHELL
   end
