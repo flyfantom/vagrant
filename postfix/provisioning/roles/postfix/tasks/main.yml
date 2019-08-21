@@ -73,13 +73,6 @@
     group: mail
     mode: 0775
 
-### Запуск и включение сервиса dovecot в автозагрузку
-#- name: Check dovecot.service
-#  systemd:
-#    state: started
-#    name: dovecot
-#    enabled: yes
-
 - name: Copy mariadb.repo
   copy:
     src: "{{ item }}"
