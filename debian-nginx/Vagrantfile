@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+
+Vagrant.configure("2") do |config|
+
+  ##### DEFINE VM for oob-mgmt-server #####
+  config.vm.define "debian-nginx" do |config|
+  config.vm.hostname = "debian-nginx"
+  config.vm.box = "debian/jessie64"
+  config.vm.box_check_update = false
+  config.vm.network "private_network", ip: "172.16.10.20"
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = 1024
+#    vb.storage_pool_name = "VM"
+    end
+    config.vm.provision "shell", run: "always", inline: <<-SHELL
+    apt-get update
+    apt-get -y install mc net-tools nmap htop iftop curl sudo
+    cd /usr/local/src
+    wget http://nginx.org/keys/nginx_signing.key && apt-key add nginx_signing.key
+    echo "deb http://nginx.org/packages/mainline/debian/ stretch nginx" >> /etc/apt/sources.list.d/nginx.list
+    echo "deb-src http://nginx.org/packages/mainline/debian/ stretch nginx" >> /etc/apt/sources.list.d/nginx.list
+    apt update
+    mkdir /usr/local/src/nginx && cd /usr/local/src/nginx/
+    apt install dpkg-dev -y && apt-get source nginx
+    cd /usr/local/src && apt install git -y
+    git clone https://github.com/openssl/openssl.git
+    cd openssl && git branch -a
+    git checkout OpenSSL_1_1_1-stable
+    SHELL
+  end
+end
