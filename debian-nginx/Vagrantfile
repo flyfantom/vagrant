@@ -20,15 +20,23 @@ Vagrant.configure("2") do |config|
     apt-get update
     apt-get -y install mc net-tools nmap htop iftop curl sudo
     cd /usr/local/src
+    ### Добавляем ключ репозитория nginx
     wget http://nginx.org/keys/nginx_signing.key && apt-key add nginx_signing.key
+    ### Добавляем репозиторий nginx и обновляем локальный кэш
     echo "deb http://nginx.org/packages/mainline/debian/ stretch nginx" >> /etc/apt/sources.list.d/nginx.list
     echo "deb-src http://nginx.org/packages/mainline/debian/ stretch nginx" >> /etc/apt/sources.list.d/nginx.list
     apt update
+    ### Создаем необходимые для сборки каталоги
     mkdir /usr/local/src/nginx && cd /usr/local/src/nginx/
+    ### Устанавливаем необходимые для компиляции зависимости и качаем исходники nginx последней версии
     apt install dpkg-dev -y && apt-get source nginx
+    ### Переходим в каталог для сборки и устанавливаем git
     cd /usr/local/src && apt install git -y
+    ### Клонируем репозиторий OpenSSL
     git clone https://github.com/openssl/openssl.git
+    ### Делаем ветку от мастера в локальном репозитории
     cd openssl && git branch -a
+    ### Выбираем стабильную версию в этой ветке
     git checkout OpenSSL_1_1_1-stable
     SHELL
   end
