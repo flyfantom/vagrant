@@ -1,0 +1,12 @@
+---
+### Конфиг journald.upload.conf
+- name: Add journald.upload.conf
+  template:
+    src=roles/elk-lab-remote2/templates/etc/systemd/journald.upload.conf
+    dest=/etc/systemd/journald.upload.conf
+
+### Рестарт сервиса systemd-journald
+- name: Check systemd-journald.service
+  systemd:
+    state: restarted
+    name: systemd-journald

@@ -1,0 +1,30 @@
+---
+### Добавляем конфиг 01-json-template.conf для конвертации передаваемых логов в json
+- name: Add 01-json-template.conf
+  template:
+    src=roles/elk-lab-remote3/templates/etc/rsyslog.d/01-json-template.conf
+    dest=/etc/rsyslog.d/01-json-template.conf
+
+### Добавляем конфиг rsyslog.d для передачи логов на сервер с logstash
+- name: Add logstash.conf
+  template:
+    src=roles/elk-lab-remote3/templates/etc/rsyslog.d/logstash.conf
+    dest=/etc/rsyslog.d/logstash.conf
+
+### Рестарт сервиса rsyslog
+- name: Check rsyslog.service
+  systemd:
+    state: restarted
+    name: rsyslog
+
+### Добавляем конфиг ssh
+- name: Add sshd.conf
+  template:
+    src=roles/elk-lab-remote3/templates/etc/ssh/sshd_config
+    dest=/etc/ssh/sshd_config
+
+### Рестарт сервиса sshd
+- name: Check sshd.service
+  systemd:
+    state: restarted
+    name: sshd

@@ -1,0 +1,26 @@
+---
+###
+- hosts: all
+  become: true
+  roles:
+    - utility
+
+- hosts: elk-lab-main
+  become: true
+  roles:
+    - elk-lab-main
+
+- hosts: elk-lab-remote1
+  become: true
+  roles:
+    - elk-lab-remote1
+
+- hosts: elk-lab-remote2
+  become: true
+  roles:
+    - elk-lab-remote2
+
+- hosts: elk-lab-remote3
+  become: true
+  roles:
+    - elk-lab-remote3

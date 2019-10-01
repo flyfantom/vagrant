@@ -1,0 +1,77 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "centos/7"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/elk-lab.yml"
+    ansible.become = "true"
+  end
+
+  config.vm.define "elk-lab-main" do |main|
+    main.vm.hostname = "elk-lab-main"
+    main.vm.network "private_network", ip: "10.0.0.10", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "elk-lab"
+    main.vm.network "private_network", ip: "172.16.20.20"
+    main.vm.provider :virtualbox do |vb|
+      vb.name = "elk-lab-main"
+      vb.memory = 4096
+      vb.cpus = 2
+    end
+    main.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.20 elk-lab-main >> /etc/hosts
+    echo 10.0.0.20 elk-lab-remote1 >> /etc/hosts
+    echo 10.0.0.30 elk-lab-remote2 >> /etc/hosts
+    echo 10.0.0.40 elk-lab-remote3 >> /etc/hosts
+    SHELL
+  end
+
+  config.vm.define "elk-lab-remote1" do |remote1|
+    remote1.vm.hostname = "elk-lab-remote1"
+    remote1.vm.network "private_network", ip: "10.0.0.20", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "elk-lab"
+    remote1.vm.provider :virtualbox do |vb|
+      vb.name = "elk-lab-remote1"
+      vb.memory = 512
+      vb.cpus = 1
+    end
+    remote1.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.20 elk-lab-main >> /etc/hosts
+    echo 10.0.0.20 elk-lab-remote1 >> /etc/hosts
+    echo 10.0.0.30 elk-lab-remote2 >> /etc/hosts
+    echo 10.0.0.40 elk-lab-remote3 >> /etc/hosts
+    SHELL
+  end
+
+  config.vm.define "elk-lab-remote2" do |remote2|
+    remote2.vm.hostname = "elk-lab-remote2"
+    remote2.vm.network "private_network", ip: "10.0.0.30", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "elk-lab"
+    remote2.vm.provider :virtualbox do |vb|
+      vb.name = "elk-lab-remote2"
+      vb.memory = 512
+      vb.cpus = 1
+    end
+    remote2.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.20 elk-lab-main >> /etc/hosts
+    echo 10.0.0.20 elk-lab-remote1 >> /etc/hosts
+    echo 10.0.0.30 elk-lab-remote2 >> /etc/hosts
+    echo 10.0.0.40 elk-lab-remote3 >> /etc/hosts
+    SHELL
+  end
+
+  config.vm.define "elk-lab-remote3" do |remote3|
+    remote3.vm.hostname = "elk-lab-remote3"
+    remote3.vm.network "private_network", ip: "10.0.0.40", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "elk-lab"
+    remote3.vm.provider :virtualbox do |vb|
+      vb.name = "elk-lab-remote3"
+      vb.memory = 512
+      vb.cpus = 1
+    end
+    remote3.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.20 elk-lab-main >> /etc/hosts
+    echo 10.0.0.20 elk-lab-remote1 >> /etc/hosts
+    echo 10.0.0.30 elk-lab-remote2 >> /etc/hosts
+    echo 10.0.0.40 elk-lab-remote3 >> /etc/hosts
+    SHELL
+  end
+
+end
