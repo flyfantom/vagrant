@@ -1,0 +1,91 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "centos/7"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/squid.yml"
+    ansible.become = "true"
+  end
+
+  config.vm.define "squid-lab-server" do |squid|
+    squid.vm.hostname = "squid-lab-server"
+    squid.vm.network "private_network", ip: "172.16.20.5", adapter: 2, netmask: "255.255.255.0"
+    squid.vm.network "private_network", ip: "10.10.0.10", adapter: 3, netmask: "255.255.255.0", virtualbox__intnet: "squid-lab"
+    squid.vm.provider :virtualbox do |vb|
+      vb.name = "squid-lab-server"
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    squid.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.5 squid-lab-server >> /etc/hosts
+    echo 10.10.0.20 squid-lab-client1 >> /etc/hosts
+    echo 10.10.0.30 squid-lab-client2 >> /etc/hosts
+    ### Создаем пользователей
+    adduser testuser
+    adduser testuser2
+    ### Меняем пользователям пароли
+    echo -e "12345678\n12345678\n" | passwd testuser
+    echo -e "12345678\n12345678\n" | passwd testuser2
+#    iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -o eth0 -j MASQUERADE
+    SHELL
+  end
+
+  config.vm.define "squid-lab-server2" do |squid2|
+    squid2.vm.hostname = "squid-lab-server2"
+    squid2.vm.network "private_network", ip: "172.16.20.7", adapter: 2, netmask: "255.255.255.0"
+    squid2.vm.network "private_network", ip: "10.10.0.11", adapter: 3, netmask: "255.255.255.0", virtualbox__intnet: "squid-lab"
+    squid2.vm.provider :virtualbox do |vb|
+      vb.name = "squid-lab-server2"
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    squid2.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.5 squid-lab-server >> /etc/hosts
+    echo 172.16.20.7 squid-lab-server2 >> /etc/hosts
+    echo 10.10.0.20 squid-lab-client1 >> /etc/hosts
+    echo 10.10.0.30 squid-lab-client2 >> /etc/hosts
+    ### Создаем пользователей
+    adduser testuser
+    adduser testuser2
+    ### Меняем пользователям пароли
+    echo -e "12345678\n12345678\n" | passwd testuser
+    echo -e "12345678\n12345678\n" | passwd testuser2
+#    iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -o eth0 -j MASQUERADE
+    SHELL
+  end
+
+  config.vm.define "squid-lab-client1" do |client1|
+    client1.vm.hostname = "squid-lab-client1"
+    client1.vm.network "private_network", ip: "10.10.0.20", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "squid-lab"
+    client1.vm.provider :virtualbox do |vb|
+      vb.name = "squid-lab-client1"
+      vb.memory = 512
+      vb.cpus = 1
+    end
+    client1.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.5 squid-lab-server >> /etc/hosts
+    echo 10.10.0.20 squid-lab-client1 >> /etc/hosts
+    echo 10.10.0.30 squid-lab-client2 >> /etc/hosts
+#    route add default gw 10.10.0.10 dev eth1
+    SHELL
+  end
+
+  config.vm.define "squid-lab-client2" do |client2|
+    client2.vm.hostname = "squid-lab-client2"
+    client2.vm.network "private_network", ip: "10.10.0.30", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "squid-lab"
+    client2.vm.provider :virtualbox do |vb|
+      vb.name = "squid-lab-client2"
+      vb.memory = 512
+      vb.cpus = 1
+    end
+    client2.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo 172.16.20.5 squid-lab-server >> /etc/hosts
+    echo 10.10.0.20 squid-lab-client1 >> /etc/hosts
+    echo 10.10.0.30 squid-lab-client2 >> /etc/hosts
+#    route add default gw 10.10.0.10 dev eth1
+    SHELL
+  end
+
+end

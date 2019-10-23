@@ -1,0 +1,69 @@
+---
+### Установка репозитория squid
+- name: Install squid repo
+  yum:
+    name: http://ngtech.co.il/repo/centos/7/squid-repo-1-1.el7.centos.noarch.rpm
+    state: present
+
+### Установка openssl
+- name: Install squid package
+  yum:
+    name: openssl
+    state: present
+
+### Установка прокси-сервера squid
+- name: Install squid package
+  yum:
+    name: squid-3.5.28-1.el7
+    state: present
+
+### Установка хелперов squid
+- name: Install squid package
+  yum:
+    name: squid-helpers-3.5.28-1.el7
+    state: present
+
+### Основная конфигурация squid
+- name: squid.conf
+  template:
+    src=roles/squid-lab-server2/templates/etc/squid/squid.conf
+    dest=/etc/squid/squid.conf
+
+### Конфиг черного списка
+#- name: blacklist
+#  template:
+#    src=roles/squid-lab-server/templates/etc/squid/blacklist
+#    dest=/etc/squid/blacklist
+
+### Конфиг белого списка
+#- name: whitelist
+#  template:
+#    src=roles/squid-lab-server/templates/etc/squid/whitelist
+#    dest=/etc/squid/whitelist
+
+- name: Check squid.service
+  systemd:
+    state: started
+    name: squid
+    enabled: yes
+
+### Установка iptables-services
+- name: Install iptables-services
+  package:
+    name: iptables-services
+    state: latest
+
+### Конфигурация iptables
+- name: iptables-config
+  template:
+    src=roles/squid-lab-server2/templates/iptables-config
+    dest=/etc/sysconfig/iptables-config
+  when: (ansible_facts['distribution'] == "CentOS") or (ansible_facts['distribution'] == "RedHat")
+
+### Запуск и включение сервиса iptables в автозагрузку
+- name: Check iptables.service
+  systemd:
+    state: started
+    name: iptables
+    enabled: yes
+  when: (ansible_facts['distribution'] == "CentOS") or (ansible_facts['distribution'] == "RedHat")

@@ -1,0 +1,26 @@
+---
+###
+- hosts: all
+  become: true
+  roles:
+    - utility
+
+- hosts: squid-lab-server
+  become: true
+  roles:
+    - squid-lab-server
+
+- hosts: squid-lab-server2
+  become: true
+  roles:
+    - squid-lab-server2
+
+- hosts: squid-lab-client1
+  become: true
+  roles:
+    - squid-lab-client1
+
+- hosts: squid-lab-client2
+  become: true
+  roles:
+    - squid-lab-client2

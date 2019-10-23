@@ -1,0 +1,13 @@
+
+module squid_ssl_add 1.0;
+
+require {
+	type squid_t;
+	type var_lib_t;
+	class file { getattr open read };
+}
+
+#============= squid_t ==============
+
+#!!!! WARNING: 'var_lib_t' is a base type.
+allow squid_t var_lib_t:file { getattr open read };
