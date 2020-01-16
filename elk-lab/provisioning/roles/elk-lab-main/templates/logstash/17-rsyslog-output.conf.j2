@@ -11,7 +11,7 @@ output {
     if [type] == "rsyslog" {
         elasticsearch {
         hosts => ["http://localhost:9200"]
-        index => "rsylog-%{+YYYY.MM.dd}"
+        index => "rsyslog-%{+YYYY.MM.dd}"
         }
     }
 }
