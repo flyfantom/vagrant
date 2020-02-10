@@ -7,5 +7,5 @@
 
 - name: 'Installing base utilities: tcpdump, traceroute, telnet, vim, htop, nmap'
   yum:
-    name: ['mc', 'tcpdump', 'traceroute', 'telnet', 'vim', 'htop', 'nmap']
+    name: ['mc', 'tcpdump', 'traceroute', 'telnet', 'vim', 'htop', 'nmap', 'net-tools']
     state: latest
