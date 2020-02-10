@@ -1,0 +1,51 @@
+---
+# tasks file for router4
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Disabling rp_filter eth0
+  sysctl:
+    name: net.ipv4.conf.eth0.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Disabling rp_filter eth1
+  sysctl:
+    name: net.ipv4.conf.eth1.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Disabling rp_filter eth2
+  sysctl:
+    name: net.ipv4.conf.eth2.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+
+- name: Copy BIRD config
+  copy:
+    src: "{{ item }}"
+    dest: /etc
+  loop:
+    - bird.conf
+
+- name: Creating log dir '/var/log/bird/'
+  file:
+    path: '/var/log/bird/'
+    state: directory
+    mode: '0777'
+
+- name: starting and add BIRD to startup
+  systemd:
+    name: 'bird'
+    state: started
+    enabled: yes
