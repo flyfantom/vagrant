@@ -1,0 +1,85 @@
+---
+  - name: Install python-setuptools
+    yum:
+      name: python-setuptools
+      state: present
+
+### Пользователи
+### Добавляем группы и пользователей с ключами
+  - name: Add group "{{ item.name }}"
+    group:
+      name: "{{ item.name }}"
+      state: "{{ item.state }}"
+    with_items: "{{ ssh_users }}"
+
+### Добавляем пользователей с ключами без пароля
+  - name: Add the user "{{ item.name }}"
+    user:
+      name: "{{ item.name }}"
+      group: "{{ item.group }}"
+      groups: "{{ item.groups }}"
+      state: "{{ item.state }}"
+      shell: "{{ item.shell }}"
+      createhome: "{{ item.createhome }}"
+    with_items: "{{ ssh_users }}"
+    when: (item.password is not defined) or (item.password|length == 0)
+
+### Добавляем ssh-ключи пользователям в соответствии с переменной ssh_users
+  - name: Add ssh key
+    authorized_key: user={{ item.name }} key={{ item.key }} state={{ item.state }}
+    with_items: "{{ ssh_users }}"
+    when: item.key is defined
+
+### Добавляем приватный ssh-ключ пользователю ceph
+  - name: ceph ssh private
+    template:
+      src: vars/ceph_key
+      dest: /home/ceph/.ssh/id_rsa
+      owner: ceph
+      group: ceph
+      mode: '0600'
+
+### Добавляем конфиги sudoers для добавленных пользователей
+  - name: sudo without password for wheel group
+    copy:
+      content: '{{ item.name }} ALL=(ALL) NOPASSWD:ALL'
+      dest: /etc/sudoers.d/{{ item.name }}
+      mode: 0440
+    with_items: "{{ ssh_users }}"
+
+### Добавляем файл /etc/hosts
+  - name: /etc/hosts
+    template:
+      src: templates/hosts
+      dest: /etc/hosts
+      owner: root
+      group: root
+      mode: '0644'
+
+### Создание каталогов для работы CEPH
+  - file:
+      path: /home/ceph/test-cluster
+      state: directory
+      owner: ceph
+      group: ceph
+      mode: 0775
+
+### Добавляем репозиторий CEPH
+  - name: /etc/yum.repos.d/ceph.repo
+    template:
+      src: templates/ceph.repo
+      dest: /etc/yum.repos.d/ceph.repo
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Install ceph-deploy
+    yum:
+      name: ceph-deploy
+      state: present
+
+#  - name: Create new CEPH cluster
+#    command: ceph-deploy new ceph-lab-1 ceph-lab-2 ceph-lab-3
+#    become: true
+#    become_user: ceph
+

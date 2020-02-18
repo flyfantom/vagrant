@@ -1,0 +1,10 @@
+---
+### Задаем переменную, описывающую пользователя, его статус и ssh-ключ
+ssh_users:
+  - name: ceph
+    key: "{{ lookup('file', 'roles/ceph-lab/vars/ceph_key.pub') }}"
+    group: ceph
+    groups: wheel
+    state: present
+    shell: /bin/bash
+    createhome: yes

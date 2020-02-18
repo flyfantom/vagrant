@@ -1,0 +1,9 @@
+127.0.0.1       {{ inventory_hostname }} {{ inventory_hostname }}
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+10.11.0.5     ceph-lab-client
+10.11.0.10    ceph-lab-1
+10.11.0.20    ceph-lab-2
+10.11.0.30    ceph-lab-3
+10.11.0.40    ceph-lab-4

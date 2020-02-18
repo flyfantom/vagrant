@@ -1,0 +1,26 @@
+---
+# tasks file for utility
+- name: Installing epel-release
+  yum:
+    name: epel-release
+    state: latest
+
+- name: 'Installing base utilities: mc, net-tools, tcpdump, traceroute, telnet, vim, htop'
+  yum:
+    name: ['mc', 'net-tools', 'tcpdump', 'mtr', 'traceroute', 'telnet', 'vim', 'htop', 'nmap']
+    state: latest
+
+- file:
+  path: /root/.config/mc
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: /root/.config/mc/ini
+  template:
+    src: templates/mc/ini
+    dest: /root/.config/mc/ini
+    owner: root
+    group: root
+    mode: '0644'

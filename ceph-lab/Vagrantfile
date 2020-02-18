@@ -1,0 +1,97 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "centos/7"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/ceph-lab.yml"
+    ansible.become = "true"
+  end
+
+  config.vm.define "ceph-lab-client" do |client|
+    client.vm.hostname = "ceph-lab-client"
+    client.vm.network "private_network", ip: "10.11.0.5", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "ceph-lab"
+    client.vm.network "private_network", ip: "172.16.21.5", adapter: 3
+    client.vm.provider :virtualbox do |vb|
+      vb.name = "ceph-lab-client"
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    client.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+  config.vm.define "ceph-lab-1" do |ceph1|
+    ceph1.vm.hostname = "ceph-lab-1"
+    ceph1.vm.network "private_network", ip: "10.11.0.10", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "ceph-lab"
+    ceph1.vm.network "private_network", ip: "172.16.21.10", adapter: 3
+    ceph1.vm.provider :virtualbox do |vb|
+      vb.name = "ceph-lab-1"
+      vb.memory = 2048
+      vb.cpus = 2
+      second_disk = "/tmp/ceph-lab-1-disk2.vmdk"
+      unless File.exist?('/tmp/ceph-lab-1-disk2.vmdk')
+        vb.customize ['createhd', '--filename', second_disk, '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', second_disk]
+    end
+    ceph1.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+  config.vm.define "ceph-lab-2" do |ceph2|
+    ceph2.vm.hostname = "ceph-lab-2"
+    ceph2.vm.network "private_network", ip: "10.11.0.20", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "ceph-lab"
+    ceph2.vm.network "private_network", ip: "172.16.21.20", adapter: 3
+    ceph2.vm.provider :virtualbox do |vb|
+      vb.name = "ceph-lab-2"
+      vb.memory = 2048
+      vb.cpus = 1
+      second_disk = "/tmp/ceph-lab-2-disk2.vmdk"
+      unless File.exist?('/tmp/ceph-lab-2-disk2.vmdk')
+        vb.customize ['createhd', '--filename', second_disk, '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', second_disk]
+    end
+    ceph2.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+  config.vm.define "ceph-lab-3" do |ceph3|
+    ceph3.vm.hostname = "ceph-lab-3"
+    ceph3.vm.network "private_network", ip: "10.11.0.30", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "ceph-lab"
+    ceph3.vm.network "private_network", ip: "172.16.21.30", adapter: 3
+    ceph3.vm.provider :virtualbox do |vb|
+      vb.name = "ceph-lab-3"
+      vb.memory = 2048
+      vb.cpus = 1
+      second_disk = "/tmp/ceph-lab-3-disk2.vmdk"
+      unless File.exist?('/tmp/ceph-lab-3-disk2.vmdk')
+        vb.customize ['createhd', '--filename', second_disk, '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', second_disk]
+    end
+    ceph3.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+  config.vm.define "ceph-lab-4" do |ceph4|
+    ceph4.vm.hostname = "ceph-lab-4"
+    ceph4.vm.network "private_network", ip: "10.11.0.40", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "ceph-lab"
+    ceph4.vm.network "private_network", ip: "172.16.21.40", adapter: 3
+    ceph4.vm.provider :virtualbox do |vb|
+      vb.name = "ceph-lab-4"
+      vb.memory = 2048
+      vb.cpus = 1
+      second_disk = "/tmp/ceph-lab-4-disk2.vmdk"
+      unless File.exist?('/tmp/ceph-lab-4-disk2.vmdk')
+        vb.customize ['createhd', '--filename', second_disk, '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+      vb.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', second_disk]
+    end
+    ceph4.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+end

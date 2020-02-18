@@ -1,0 +1,26 @@
+---
+###
+- hosts: all
+  become: true
+  roles:
+    - utility
+
+- hosts: ceph-lab-client
+  become: true
+  roles:
+    - ceph-lab
+
+- hosts: ceph-lab-1
+  become: true
+  roles:
+    - ceph-lab
+
+- hosts: ceph-lab-2
+  become: true
+  roles:
+    - ceph-lab
+
+- hosts: ceph-lab-3
+  become: true
+  roles:
+    - ceph-lab
