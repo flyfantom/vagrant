@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+Vagrant.configure("2") do |config|
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/selinux.yml"
+    ansible.become = "true"
+  end
+
+  config.vm.define "selinux" do |selinux|
+  selinux.vm.hostname = "selinux"
+  selinux.vm.box = "centos/7"
+  selinux.vm.box_check_update = false
+  selinux.vm.network "private_network", ip: "172.19.10.10"
+  selinux.vm.provider :virtualbox do |vb|
+    vb.name = "selinux.test.ru"
+    vb.memory = 512
+    vb.cpus = 1
+    end
+    selinux.vm.provision "shell", run: "always", inline: <<-SHELL
+    ### Создаем пользователя testuser
+    adduser testuser
+    SHELL
+  end
+end

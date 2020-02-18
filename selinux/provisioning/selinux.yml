@@ -1,0 +1,6 @@
+---
+- hosts: selinux
+  become: true
+  roles:
+    - selinux
+    - utility
