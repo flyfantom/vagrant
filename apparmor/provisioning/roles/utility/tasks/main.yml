@@ -1,0 +1,36 @@
+---
+# tasks file for utility
+- name: 'Installing base utilities: mc, net-tools, tcpdump, traceroute, telnet, vim, htop'
+  apt:
+    name: ['mc', 'net-tools', 'tcpdump', 'traceroute', 'telnet', 'vim', 'htop', 'nmap']
+    state: latest
+
+- file:
+    path: /root/.config/mc
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- file:
+    path: /home/vagrant/.config/mc
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: /root/.config/mc/ini
+  template:
+    src: templates/mc/ini
+    dest: /root/.config/mc/ini
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: /home/vagrant/.config/mc/ini
+  template:
+    src: templates/mc/ini
+    dest: /home/vagrant/.config/mc/ini
+    owner: root
+    group: root
+    mode: '0644'

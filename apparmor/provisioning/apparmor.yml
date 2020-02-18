@@ -1,0 +1,11 @@
+---
+###
+- hosts: all
+  become: true
+  roles:
+    - utility
+
+- hosts: apparmor
+  become: true
+  roles:
+    - apparmor
