@@ -7,5 +7,20 @@
 
 - name: 'Installing base utilities: tcpdump, traceroute, telnet, vim, htop, nmap'
   yum:
-    name: ['mc', 'tcpdump', 'traceroute', 'telnet', 'vim', 'htop', 'nmap']
+    name: ['mc', 'net-tools', 'tcpdump', 'mtr', 'traceroute', 'telnet', 'vim', 'htop', 'nmap', 'iperf3']
     state: latest
+
+- file:
+  path: /root/.config/mc
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: /root/.config/mc/ini
+  template:
+    src: templates/mc/ini
+    dest: /root/.config/mc/ini
+    owner: root
+    group: root
+    mode: '0644'
