@@ -1,0 +1,78 @@
+version: '3.2'
+
+volumes:
+    prometheus-data: {}
+    esdata: {}
+    grafana-data: {}
+
+services:
+  prometheus:
+    container_name: "prometheus"
+    image: prom/prometheus
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+    volumes:
+      - "/root/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "/root/prometheus/http_alarm_rules.yml:/etc/prometheus/http_alarm_rules.yml"
+      - "/root/prometheus/nginx-proxy_alarm_rules.yml:/etc/prometheus/nginx-proxy_alarm_rules.yml"
+      - "prometheus-data:/prometheus"
+    restart: always
+    command:
+       - '--config.file=/etc/prometheus/prometheus.yml'
+
+  alertmanager:
+    container_name: "alertmanager"
+    image: prom/alertmanager
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+    volumes:
+      - "/etc/localtime:/etc/localtime"
+      - "/root/prometheus/alertmanager.yml:/etc/alertmanager/config.yml"
+    restart: always
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+
+  blackbox-exporter:
+    container_name: "blackbox-exporter"
+    image: prom/blackbox-exporter
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+    volumes:
+      - "/root/prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml"
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    restart: always
+
+  node-exporter:
+    container_name: "node-exporter"
+    image: quay.io/prometheus/node-exporter
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+    restart: always
+
+  cadvisor-exporter:
+    container_name: "cadvisor-exporter"
+    image: google/cadvisor
+    network_mode: "host"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    restart: always
+
+  grafana:
+    container_name: "grafana"
+    image: grafana/grafana:6.7.2
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+      - "GF_SECURITY_ADMIN_PASSWORD=12345678"
+      - "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource"
+    volumes:
+      - "grafana-data:/var/lib/grafana"
+    restart: always

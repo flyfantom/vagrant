@@ -1,0 +1,3 @@
+path.data: /usr/share/logstash/data
+config.reload.automatic: true
+#path.logs: /var/log/logstash

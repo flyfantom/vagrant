@@ -1,0 +1,19 @@
+---
+- file:
+    path: /root/prometheus
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: Prometheus configs deploy
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'alertmanager.yml', dest: '/root/prometheus/alertmanager.yml' }
+    - { src: 'blackbox.yml', dest: '/root/prometheus/blackbox.yml' }
+    - { src: 'http_alarm_rules.yml', dest: '/root/prometheus/http_alarm_rules.yml' }
+    - { src: 'nginx-proxy_alarm_rules.yml', dest: '/root/prometheus/nginx-proxy_alarm_rules.yml' }
+    - { src: 'prometheus.yml', dest: '/root/prometheus/prometheus.yml' }
+

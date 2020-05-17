@@ -1,0 +1,132 @@
+---
+- name: Add Docker repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+
+- name: Enable Docker Edge repo
+  ini_file:
+    dest: /etc/yum.repos.d/docer-ce.repo
+    section: 'docker-ce-edge'
+    option: enabled
+    value: 0
+
+- name: Enable Docker Test repo
+  ini_file:
+    dest: /etc/yum.repos.d/docer-ce.repo
+    section: 'docker-ce-test'
+    option: enabled
+    value: 0
+
+- name: Update
+  yum:
+   update_cache: yes
+  tags:
+    - docker
+
+- name: Install docker
+  yum:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  tags:
+    - docker
+
+- name: Enable docker
+  systemd:
+    name: docker
+    enabled: yes
+  tags:
+    - docker
+
+- name: Start docker service
+  systemd:
+    name: docker
+    state: started
+  tags:
+    - docker
+
+- name: Install docker-compose
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.23.2/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: 0777
+  tags:
+    - docker
+
+- name: Create symbolic link 
+  file:
+    src: /usr/local/bin/docker-compose
+    dest: /usr/bin/docker-compose
+    state: link
+
+- name: Docker version
+  shell: docker -v
+  register: result_1
+  tags:
+    - docker
+
+- debug:
+    var: result_1
+  tags:
+    - docker
+
+- name: Docker-compose -v
+  shell: docker-compose -v
+  register: result_2
+  tags:
+    - docker
+
+- debug:
+    var: result_2
+  tags:
+    - docker
+
+- name: Start docker service
+  systemd:
+    name: docker
+    state: started
+  tags: docker
+
+- name: Enable docker service
+  systemd:
+    name: docker
+    enabled: yes
+  tags: docker
+
+#- name: Start netdata
+#  shell: docker run -d --name=netdata -p 19999:19999 -v /proc:/host/proc:ro -v /sys:/host/sys:ro -v /var/run/docker.sock:/var/run/docker.sock:ro --cap-add SYS_PTRACE --security-opt apparmor=unconfined netdata/netdata
+#  tags: docker
+
+- file:
+    path: /root/monitoring
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: /root/monitoring/docker-compose.yml
+  template:
+    src: prometheus-docker-compose.yml
+    dest: /root/monitoring/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- file:
+    path: /root/elk
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: /root/elk/docker-compose.yml
+  template:
+    src: elk-docker-compose.yml
+    dest: /root/elk/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'

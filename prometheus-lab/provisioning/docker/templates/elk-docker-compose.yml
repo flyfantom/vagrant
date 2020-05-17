@@ -1,0 +1,45 @@
+version: '3.2'
+
+volumes:
+    esdata: {}
+
+services:
+  logstash:
+    container_name: "logstash"
+    image: docker.elastic.co/logstash/logstash:7.6.2
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+    volumes:
+      - "/root/logstash/conf.d/:/usr/share/logstash/pipeline/:ro"
+      - "/root/logstash/patterns/:/opt/logstash/patterns/:ro"
+      - "/root/logstash/config/:/usr/share/logstash/config/"
+    restart: always
+
+  elasticsearch:
+    container_name: "elasticsearch"
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+      - "ES_JAVA_OPTS=-Xms2G -Xmx2G"
+      - "bootstrap.memory_lock=true"
+      - "discovery.type=single-node"
+      - "cluster.name=elk-cluster"
+      - "node.name=elk-lab1"
+    volumes:
+      - "esdata:/usr/share/elasticsearch/data"
+    restart: always
+
+  kibana:
+    container_name: "kibana"
+    image: docker.elastic.co/kibana/kibana:7.6.2
+    network_mode: "host"
+    environment:
+      - "TIME_ZONE=Europe/Moscow"
+      - "SERVER_NAME=kibana"
+      - "XPACK_MONITORING_ENABLED=true"
+      - "ELASTICSEARCH_HOSTS=http://10.11.0.15:9200"
+      - "xpack.monitoring.collection.enabled=true"
+    restart: always
+

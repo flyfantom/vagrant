@@ -1,0 +1,45 @@
+---
+- file:
+    path: /root/logstash
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- file:
+    path: /root/logstash/conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- file:
+    path: /root/logstash/config
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- file:
+    path: /root/logstash/patterns
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: Logstash configs deploy
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'conf.d/02-beats-input.conf', dest: '/root/logstash/conf.d/02-beats-input.conf' }
+    - { src: 'conf.d/10-nginx-filter.conf', dest: '/root/logstash/conf.d/10-nginx-filter.conf' }
+    - { src: 'conf.d/11-nginx-error-filter.conf', dest: '/root/logstash/conf.d/11-nginx-error-filter.conf' }
+    - { src: 'conf.d/12-postgresql-filter.conf', dest: '/root/logstash/conf.d/12-postgresql-filter.conf' }
+    - { src: 'conf.d/13-docker-filter.conf', dest: '/root/logstash/conf.d/13-docker-filter.conf' }
+    - { src: 'config/jvm.options', dest: '/root/logstash/config/jvm.options' }
+    - { src: 'config/log4j2.properties', dest: '/root/logstash/config/log4j2.properties' }
+    - { src: 'config/logstash.yml', dest: '/root/logstash/config/logstash.yml' }
+    - { src: 'config/pipelines.yml', dest: '/root/logstash/config/pipelines.yml' }
+    - { src: 'patterns/nginx', dest: '/root/logstash/patterns/nginx' }
+    - { src: 'patterns/nginx-error', dest: '/root/logstash/patterns/nginx-error' }

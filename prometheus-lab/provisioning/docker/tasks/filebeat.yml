@@ -1,0 +1,25 @@
+---
+- name: Add Elasticsearch repo
+  yum_repository:
+    name: elasticsearch-7.x
+    description: Elasticsearch repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    gpgcheck: yes
+    enabled: true
+
+- name: Install filebeat package
+  yum:
+    name: filebeat
+    state: present
+
+- name: Install filebeat config
+  template:
+    src: filebeat.yml
+    dest: /etc/filebeat/filebeat.yml
+
+- name: Check filebeat.service
+  systemd:
+    state: started
+    name: filebeat
+    enabled: yes

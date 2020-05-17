@@ -1,0 +1,8 @@
+---
+- hosts: docker-host
+  become: true
+  roles:
+    - docker
+    - utility
+    - prometheus
+    - logstash

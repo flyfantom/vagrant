@@ -1,0 +1,60 @@
+{% raw %}
+groups:
+- name: TotalReqLow
+  rules:
+  - alert: TotalReqLow
+    expr: irate(nginx_http_requests_total{job=~"nginx-proxy1"}[5m]) == 0
+    for: 1m
+    labels:
+      severity: high
+    annotations:
+      summary: 'Total connections rate is very low'
+      description: '{{$labels.env}}: Total connections rate is very low. Current value is {{ $value | humanize }}.'
+
+  - alert: TotalReqLow
+    expr: irate(nginx_http_requests_total{job="nginx-proxy2"}[5m]) == 0
+    for: 1m
+    labels:
+      severity: high
+    annotations:
+      summary: 'Total connections rate is very low'
+      description: '{{$labels.env}}: Total connections rate is very low. Current value is {{ $value | humanize }}.'
+
+- name: NginxProxyStatus
+  rules:
+  - alert: NginxProxyStatus
+    expr: nginx_up{job="nginx-proxy1"} == 0
+    for: 30s
+    labels:
+      severity: Disaster
+    annotations:
+      summary: 'Nginx proxy is down'
+      description: '{{$labels.env}}: Nginx proxy is down. Current status is {{ $value | humanize }}.'
+
+  - alert: NginxProxyStatus
+    expr: nginx_up{job="nginx-proxy2"} == 0
+    for: 30s
+    labels:
+      severity: Disaster
+    annotations:
+      summary: 'Nginx proxy is down'
+      description: '{{$labels.env}}: Nginx proxy is down. Current status is {{ $value | humanize }}.'
+
+  - alert: NginxProxyStatus
+    expr: nginx_up{job="nginx-proxy3"} == 0
+    for: 30s
+    labels:
+      severity: Disaster
+    annotations:
+      summary: 'Nginx proxy is down'
+      description: '{{$labels.env}}: Nginx proxy is down. Current status is {{ $value | humanize }}.'
+
+  - alert: NginxProxyStatus
+    expr: nginx_up{job="nginx-proxy4"} == 0
+    for: 30s
+    labels:
+      severity: Disaster
+    annotations:
+      summary: 'Nginx proxy is down'
+      description: '{{$labels.env}}: Nginx proxy is down. Current status is {{ $value | humanize }}.'
+{% endraw %}

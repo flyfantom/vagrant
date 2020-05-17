@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+
+Vagrant.configure("2") do |config|
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/prometheus-lab.yml"
+    ansible.become = "true"
+  end
+
+  config.vm.define "docker-host" do |host|
+  host.vm.hostname = "docker-host"
+  host.vm.box = "centos/7"
+  host.vm.box_check_update = false
+  host.vm.network "private_network", ip: "10.11.0.15", adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "prometheus-lab"
+  host.vm.network "private_network", ip: "172.16.21.15", adapter: 3
+  host.vm.provider :virtualbox do |vb|
+    vb.memory = 6144
+    vb.cpus = 4
+    end
+    config.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+end

@@ -1,0 +1,44 @@
+{% raw %}
+groups:
+- name: ya.ru-site-http
+  rules:
+  - alert: HttpStatusAlarm
+    expr: probe_http_status_code{job="ya.ru-site"} != 200
+    for: 1m
+    labels:
+      severity: disaster
+    annotations:
+      summary: 'http status code is not Ok'
+      description: '{{$labels.env}}: http status code is not Ok. Current value is {{ $value | humanize }}.'
+
+
+  - alert: HttpDurationAlarm
+    expr: probe_http_duration_seconds{instance="https://ya.ru/",job="ya.ru-site",phase="processing"} > 1
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'http duration is high'
+      description: '{{$labels.env}}: http duration is above 1 second. Current value is {{ $value | humanize }}.'
+
+- name: habr.com-http
+  rules:
+  - alert: HttpStatusAlarm
+    expr: probe_http_status_code{job="habr.com-http"} != 200
+    for: 1m
+    labels:
+      severity: disaster
+    annotations:
+      summary: 'http status code is not Ok'
+      description: '{{$labels.env}}: http status code is not Ok. Current value is {{ $value | humanize }}.'
+
+
+  - alert: HttpDurationAlarm
+    expr: probe_http_duration_seconds{instance="https://habr.com",job="habr.com-http",phase="processing"} > 0.5
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'http duration is high'
+      description: '{{$labels.env}}: http duration is above 1 second. Current value is {{ $value | humanize }}.'
+{% endraw %}
