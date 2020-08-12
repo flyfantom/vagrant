@@ -1,12 +1,15 @@
 ---
-### Конфиг journald.upload.conf
+- name: Install systemd-journal-gateway
+  yum:
+    name: systemd-journal-gateway
+    state: present
+
 - name: Add journald.upload.conf
   template:
-    src=roles/elk-lab-remote2/templates/etc/systemd/journald.upload.conf
-    dest=/etc/systemd/journald.upload.conf
+    src=roles/elk-lab-remote2/templates/etc/systemd/journal-upload.conf
+    dest=/etc/systemd/journal-upload.conf
 
-### Рестарт сервиса systemd-journald
-- name: Check systemd-journald.service
+- name: Check systemd-journal-upload
   systemd:
     state: restarted
-    name: systemd-journald
+    name: systemd-journal-upload

@@ -28,3 +28,18 @@
   systemd:
     state: restarted
     name: sshd
+
+- name: Install systemd-journal-gateway
+  yum:
+    name: systemd-journal-gateway
+    state: present
+
+- name: Add journald.upload.conf
+  template:
+    src=templates/etc/systemd/journal-upload.conf
+    dest=/etc/systemd/journal-upload.conf
+
+- name: Check systemd-journal-upload
+  systemd:
+    state: restarted
+    name: systemd-journal-upload

@@ -93,7 +93,7 @@
 
 - name: Install filebeat
   yum:
-    name: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.4.0-x86_64.rpm
+    name: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.0-x86_64.rpm
     state: present
 
 - name: Ensure that Filebeat is configured properly
@@ -105,4 +105,36 @@
   systemd:
     state: started
     name: filebeat
+    enabled: yes
+
+- name: Install packetbeat
+  yum:
+    name: https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-7.6.0-x86_64.rpm
+    state: present
+
+- name: Ensure that Packetbeat is configured properly
+  template:
+    src: packetbeat.yml
+    dest: /etc/packetbeat/packetbeat.yml
+
+- name: Check packetbeat.service
+  systemd:
+    state: started
+    name: packetbeat
+    enabled: yes
+
+- name: Install journalbeat
+  yum:
+    name: https://artifacts.elastic.co/downloads/beats/journalbeat/journalbeat-7.6.0-x86_64.rpm
+    state: present
+
+- name: Ensure that journalbeat is configured properly
+  template:
+    src: journalbeat.yml
+    dest: /etc/journalbeat/journalbeat.yml
+
+- name: Check journalbeat.service
+  systemd:
+    state: started
+    name: journalbeat
     enabled: yes

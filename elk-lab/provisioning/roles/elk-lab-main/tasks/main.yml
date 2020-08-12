@@ -1,4 +1,26 @@
 ---
+- name: Install journald services
+  yum:
+    name: systemd-journal-gateway
+    state: present
+
+- file:
+    path: /var/log/journal/remote
+    state: directory
+    owner: systemd-journal-remote
+    group: systemd-journal-remote
+    mode: 0775
+
+- name: Add journald.upload.conf
+  template:
+    src=templates/systemd-journal-remote.service
+    dest=/lib/systemd/system/systemd-journal-remote.service
+
+- name: Check systemd-journal-remote
+  systemd:
+    state: restarted
+    name: systemd-journal-remote
+
 - name: Install Java
   yum:
     name: java-1.8.0-openjdk
@@ -6,9 +28,9 @@
 
 - name: Add Elasticsearch repo
   yum_repository:
-    name: elasticsearch-6.x
-    description: Elasticsearch repository for 6.x packages
-    baseurl: https://artifacts.elastic.co/packages/6.x/yum
+    name: elasticsearch-7.x
+    description: Elasticsearch repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     gpgcheck: yes
     enabled: true
@@ -26,7 +48,7 @@
 
 - name: Install filebeat
   yum:
-    name: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.4.0-x86_64.rpm
+    name: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.0-x86_64.rpm
     state: present
 
 - name: Ensure that Filebeat is configured properly
@@ -68,9 +90,6 @@
     group: root
     mode: 0775
 
-- name: Install logstash-input-journald
-  shell: /usr/share/logstash/bin/logstash-plugin install logstash-input-journald
-
 - name: Ensure that Logstash is configured properly
   template:
     src: "{{ item.src }}"
@@ -82,8 +101,9 @@
     - { src: 'logstash/13-secure-output.conf.j2', dest: '/etc/logstash/conf.d/13-secure-output.conf' }
     - { src: 'logstash/14-mysql-output.conf.j2', dest: '/etc/logstash/conf.d/14-mysql-output.conf' }
     - { src: 'logstash/15-php-output.conf.j2', dest: '/etc/logstash/conf.d/15-php-output.conf' }
-#    - { src: 'logstash/16-journald-output.conf.j2', dest: '/etc/logstash/conf.d/16-journald-output.conf' }
     - { src: 'logstash/17-rsyslog-output.conf.j2', dest: '/etc/logstash/conf.d/17-rsyslog-output.conf' }
+    - { src: 'logstash/18-packetbeat-output.conf.j2', dest: '/etc/logstash/conf.d/18-packetbeat-output.conf' }
+    - { src: 'logstash/19-journalbeat-output.conf.j2', dest: '/etc/logstash/conf.d/19-journalbeat-output.conf' }
     - { src: 'logstash/patterns/nginx.j2', dest: '/etc/logstash/patterns/nginx' }
     - { src: 'logstash/patterns/nginx-error.j2', dest: '/etc/logstash/patterns/nginx-error' }
 
@@ -92,3 +112,11 @@
     state: started
     name: logstash
     enabled: yes
+
+- name: Create packetbeat template file
+  template:
+    src: packetbeat.template.json
+    dest: /root/packetbeat.template.json
+
+- name: Install packetbeat template
+  shell: "curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/packetbeat-7.6.0 -d@/root/packetbeat.template.json"
