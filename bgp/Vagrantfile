@@ -1,0 +1,76 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "centos/8"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provisioning/bgp.yml"
+    ansible.become = "true"
+  end
+
+  config.vm.define "r1" do |r1|
+    r1.vm.hostname = "r1"
+    r1.vm.network "private_network", ip: "172.30.0.2", adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "ext_r3"
+    r1.vm.network "private_network", ip: "172.30.0.25", adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "int_r2"
+    r1.vm.network "private_network", ip: "10.30.0.1", adapter: 4, netmask: "255.255.255.0"
+    r1.vm.provider :virtualbox do |vb|
+      vb.name = "r1"
+	  vb.memory = 512
+    end
+  end
+
+  config.vm.define "r2" do |r2|
+    r2.vm.hostname = "r2"
+    r2.vm.network "private_network", ip: "172.30.0.6", adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "ext_r4"
+    r2.vm.network "private_network", ip: "172.30.0.26", adapter: 3, netmask: "255.255.255.252",  virtualbox__intnet: "int_r2"
+    r2.vm.network "private_network", ip: "10.50.0.1", adapter: 4, netmask: "255.255.255.0"
+    r2.vm.provider :virtualbox do |vb|
+      vb.name = "r2"
+	  vb.memory = 512
+    end
+  end
+
+  config.vm.define "r3" do |r3|
+    r3.vm.hostname = "r3"
+    r3.vm.network "private_network", ip: "172.30.0.1", adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "ext_r3"
+    r3.vm.network "private_network", ip: "172.30.0.9", adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "ext_r6"
+    r3.vm.network "private_network", ip: "172.30.0.13", adapter: 4, netmask: "255.255.255.252", virtualbox__intnet: "ext_r42"
+    r3.vm.provider :virtualbox do |vb|
+      vb.name = "r3"
+      vb.memory = 512
+    end
+  end
+
+  config.vm.define "r4" do |r4|
+    r4.vm.hostname = "r4"
+    r4.vm.network "private_network", ip: "172.30.0.5", adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "ext_r4"
+    r4.vm.network "private_network", ip: "172.30.0.17", adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "ext_r5"
+    r4.vm.network "private_network", ip: "172.30.0.14", adapter: 4, netmask: "255.255.255.252", virtualbox__intnet: "ext_r42"
+    r4.vm.provider :virtualbox do |vb|
+      vb.name = "r4"
+      vb.memory = 512
+    end
+  end
+
+  config.vm.define "r5" do |r5|
+    r5.vm.hostname = "r5"
+    r5.vm.network "private_network", ip: "172.30.0.18", adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "ext_r5"
+    r5.vm.network "private_network", ip: "172.30.0.22", adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "ext_r62"
+    r5.vm.provider :virtualbox do |vb|
+      vb.name = "r5"
+      vb.memory = 512
+    end
+  end
+
+  config.vm.define "r6" do |r6|
+    r6.vm.hostname = "r6"
+    r6.vm.network "private_network", ip: "172.30.0.10", adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "ext_r6"
+    r6.vm.network "private_network", ip: "172.30.0.21", adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "ext_r62"
+    r6.vm.provider :virtualbox do |vb|
+      vb.name = "r6"
+      vb.memory = 512
+    end
+  end
+
+end

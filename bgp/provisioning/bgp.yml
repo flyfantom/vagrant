@@ -1,0 +1,45 @@
+---
+- hosts: r1, r2
+  become: true
+  roles:
+    - frr
+
+- hosts: r3, r4, r5, r6
+  become: true
+  roles:
+    - bird
+
+- hosts: r1
+  become: true
+  roles:
+    - r1
+
+- hosts: r2
+  become: true
+  roles:
+    - r2
+
+- hosts: r3
+  become: true
+  roles:
+    - r3
+
+- hosts: r4
+  become: true
+  roles:
+    - r4
+
+- hosts: r5
+  become: true
+  roles:
+    - r5
+
+- hosts: r6
+  become: true
+  roles:
+    - r6
+
+- hosts: all
+  become: true
+  roles:
+    - utility

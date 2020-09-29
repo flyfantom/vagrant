@@ -1,0 +1,52 @@
+---
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Disabling rp_filter.all
+  sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Disabling rp_filter eth0
+  sysctl:
+    name: net.ipv4.conf.eth0.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Disabling rp_filter eth1
+  sysctl:
+    name: net.ipv4.conf.eth1.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Disabling rp_filter eth2
+  sysctl:
+    name: net.ipv4.conf.eth2.rp_filter
+    value: '0'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Copy frr configs
+  copy:
+    src: "{{ item }}"
+    dest: /etc/frr
+  loop:
+    - daemons
+    - bgpd.conf
+    - zebra.conf
+
+- name: starting and add frr to startup
+  systemd:
+    name: 'frr'
+    state: started
+    enabled: yes
