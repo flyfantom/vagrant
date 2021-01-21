@@ -1,4 +1,6 @@
 ---
+# tasks file for r1
+
 - name: Put SELinux in permissive mode, logging actions that would be blocked.
   selinux:
     policy: targeted
@@ -40,8 +42,12 @@
   copy:
     src: "{{ item }}"
     dest: /etc/frr
+    owner: frr
+    group: frr
+    mode: '0640'
   loop:
     - daemons
+    - bfdd.conf
     - bgpd.conf
     - zebra.conf
 
