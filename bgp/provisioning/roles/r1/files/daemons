@@ -50,7 +50,7 @@ eigrpd=no
 sharpd=no
 pbrd=no
 staticd=no
-bfdd=no
+bfdd=yes
 fabricd=no
 
 #
