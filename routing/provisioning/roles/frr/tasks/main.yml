@@ -6,6 +6,11 @@
     name: epel-release
     state: latest
 
+- name: Installing FRR repo
+  yum:
+    name: http://rpm.frrouting.org/repo/frr-7-repo-1-0.el7.noarch.rpm
+    state: latest
+
 - name: Installing FRR
   yum:
     name: frr
