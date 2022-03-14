@@ -1,0 +1,95 @@
+---
+# Установка bird методом сборки из исходников
+
+- name: Installing epel-release
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Install the 'Development tools' package group
+  yum:
+    name: "@Development tools"
+    state: present
+
+- name: 'Installing other tools'
+  yum:
+    name: ['wget', 'ncurses-devel', 'readline-devel']
+    state: latest
+
+- name: is bird already running?
+  shell: service bird status warn=false
+  register: _svc_bird
+  failed_when: _svc_bird.rc != 0 and ("unrecognized service" not in _svc_bird.stderr)
+  ignore_errors: true
+
+- name: create src directory for root
+  when: "_svc_bird.rc != 0"
+  file:
+    path: /root/src
+    state: directory
+
+- name: download bird sources
+  when: "_svc_bird.rc != 0"
+  shell: wget --no-check-certificate https://bird.network.cz/download/bird-2.0.8.tar.gz -O /root/src/bird-2.0.8.tar.gz
+
+- name: unarchive bird sources
+  when: "_svc_bird.rc != 0"
+  unarchive:
+    remote_src: yes
+    src: /root/src/bird-2.0.8.tar.gz
+    dest: /root/src
+
+- name: configure bird
+  when: "_svc_bird.rc != 0"
+  shell: ./configure && make && make install
+  args:
+    chdir: /root/src/bird-2.0.8
+
+- name: create symlink bird
+  when: "_svc_bird.rc != 0"
+  file:
+    path: /usr/sbin/bird
+    state: link
+    src: /usr/local/sbin/bird
+
+- name: create symlink birdc
+  when: "_svc_bird.rc != 0"
+  file:
+    path: /usr/sbin/birdc
+    state: link
+    src: /usr/local/sbin/birdc
+
+- name: deploy bird.service config
+  template:
+    src: templates/bird.service
+    dest: /etc/systemd/system/bird.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Add group "bird"
+  group:
+    name: bird
+    state: present
+
+- name: Add the user "bird"
+  user:
+    name: bird
+    group: bird
+    state: present
+    createhome: no
+
+- name: configure systemd to use service bird
+  systemd:
+    daemon_reload: yes
+    enabled: yes
+    state: stopped
+    name: bird.service
+
+- name: Enabling ip forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
